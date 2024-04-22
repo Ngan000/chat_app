@@ -1,33 +1,52 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:chat_app/src/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
+  runApp(MyApp(savedThemeMode: savedThemeMode));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AdaptiveThemeMode? savedThemeMode;
+  const MyApp({super.key, this.savedThemeMode});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      locale: Locale('vi'), // English
+    return AdaptiveTheme(
+        light: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.light,
+          colorSchemeSeed: Colors.blue,
+          primaryColor: Color.fromARGB(255, 65, 184, 126),
+        ),
+        dark: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorSchemeSeed: Colors.blue,
+        ),
+        initial: savedThemeMode ?? AdaptiveThemeMode.light,
+        builder: (theme, darkTheme) => MaterialApp(
+              locale: Locale('vi'), // English
 
-      title: 'Flutter Demo',
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        Locale('en'), // English
-        Locale('vi'), // Vietnam
-      ],
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+              title: 'Flutter Demo',
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                Locale('en'), // English
+                Locale('vi'), // Vietnam
+              ],
+              theme: theme,
+              darkTheme: darkTheme,
+              home: MyHomePage(title: 'Flutter Demo Home Page'),
+            ));
   }
 }
 
@@ -60,6 +79,25 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Light'),
+                const SizedBox(width: 10),
+                Switch(
+                  value: AdaptiveTheme.of(context).mode.isDark,
+                  onChanged: (value) {
+                    if (value) {
+                      AdaptiveTheme.of(context).setDark();
+                    } else {
+                      AdaptiveTheme.of(context).setLight();
+                    }
+                  },
+                ),
+                const SizedBox(width: 10),
+                const Text('Dark'),
+              ],
             ),
           ],
         ),
