@@ -1,5 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:chat_app/src/l10n/app_localizations.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         light: ThemeData(
           useMaterial3: true,
           brightness: Brightness.light,
-          colorSchemeSeed: Colors.blue,
+          //colorSchemeSeed: Colors.blue,
           primaryColor: Color.fromARGB(255, 65, 184, 126),
         ),
         dark: ThemeData(
@@ -61,11 +62,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  void initState() {
+    super.initState();
+    fetchAPI();
+  }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
+  }
+
+  void fetchAPI() async {
+    Dio dio = Dio();
+
+    try {
+      Response response = await dio.get('https://nominatim.openstreetmap.org/search?city=Hồ Chí Minh&format=json');
+
+      if (response.statusCode == 200) {
+        print(response.data);
+      } else {
+        print('Failed to load data, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
   }
 
   @override
